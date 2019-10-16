@@ -1,0 +1,16 @@
+try adding  hol_count, inflation 
+try revenue with preprocessing and multiple encodigs without regulariation
+try feature inflation and number of holidays
+try price trends ,sale trends
+try revenue features and mean encodings
+deal with text features later
+itc 75 is B2B and itc 76 is B2C
+release block , end with 9, price trend, season, location, price_conts
+last sale price const item returned start block
+
+additional things to try:
+add task: try distances form moscow.
+add task: clustering based on coordinates might be helpful to create region or check out districts or regions in russia
+add task: try using metrics with relative scale like huber loss since evaluation is done on clipped data(smaller sale count hold more weight).
+get location coordinates
+create price range feature for items using decision tree

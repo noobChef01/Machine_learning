@@ -1,0 +1,12 @@
+packages:
+
+json
+glob
+fastai v1.0.51
+sklearn
+pytorch v1
+
+
+embeddings:
+
+glove.6B.300d.txt vectors file
