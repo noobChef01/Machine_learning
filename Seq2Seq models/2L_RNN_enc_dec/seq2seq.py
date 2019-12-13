@@ -333,5 +333,11 @@ def save_checkpoint(h_params, model, time_stamp, model_path):
     torch.save(model_meta, f'{model_path}{model.__class__.__name__}_{time_stamp}.pth')
     return f'Model saved to {model_path}'
 
-writer.export_scalars_to_json("./all_scalars.json")
-writer.close()
+# visualize trained embeddings
+model = model.to("cpu")
+embedding = model.encoder.enc_emb.weight
+labels = [SRC.vocab.itos[i] for i in range(len(SRC.vocab.itos))]
+writer.add_embedding(embedding)
+
+writer.export_scalars_to_json("all_scalars.json")
+writer.close()  
