@@ -1,4 +1,4 @@
-#!/usr/bin/env conda run -n torch
+#!/usr/bin/env conda run -n torch python
 # std libraries
 import math
 import random
