@@ -18,11 +18,12 @@ def main():
                             help='Path to Configuration file in json format')
     args = parser.parse_args()
 
-    # with open(args.config_pth, "r") as json_file:
-    #     config = json.load(json_file)
-
-    with open("configs\\nmt_attention.json", "r") as json_file:
+    with open(args.config_pth, "r") as json_file:
         config = json.load(json_file)
+
+    # to debug
+    # with open("configs\\nmt_attention.json", "r") as json_file:
+    #     config = json.load(json_file)
     
     agent_cls = getattr(agents.nmt_attention, config["agent"])
     agent = agent_cls(config)
