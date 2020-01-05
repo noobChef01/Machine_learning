@@ -1,0 +1,6 @@
+# data files 
+.data
+datasets
+
+# vs code config
+.vscode

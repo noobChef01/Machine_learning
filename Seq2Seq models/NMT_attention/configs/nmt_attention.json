@@ -1,0 +1,30 @@
+{
+    "encoder":
+    {
+        "in_sz": 7855,
+        "emb_sz": 256, 
+        "enc_hid_dim": 512, 
+        "dec_hid_dim": 512, 
+        "dropout": 0.5
+    },
+    "decoder":
+    {
+        "out_sz": 5893, 
+        "emb_sz":256, 
+        "enc_hid_dim": 512, 
+        "dec_hid_dim": 512, 
+        "dropout": 0.5     
+    },
+    "cuda": true,
+    "mode": "train",
+    "clip": 0.7,
+    "no_epochs": 15,
+    "model_pth": "D:\\workspace\\machine_learning\\Seq2Seq models\\NMT_attention\\saved_models\\",
+    "seed": 46,
+    "gpu_device": 0,
+    "lr": 0.01,
+    "chck_pth": "D:\\workspace\\machine_learning\\Seq2Seq models\\NMT_attention\\saved_models\\nmt_attn\\",
+    "log_dir": "D:\\workspace\\machine_learning\\Seq2Seq models\\NMT_attention\\experiments\\",
+    "agent": "NmtAttnAgent",
+    "batch_size": 128 
+}
