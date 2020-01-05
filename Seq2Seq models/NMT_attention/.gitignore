@@ -4,3 +4,6 @@ datasets
 
 # vs code config
 .vscode
+
+# models folder 
+saved_models
