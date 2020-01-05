@@ -67,7 +67,7 @@ class NmtAttnAgent:
             if self.config["mode"] == "train":
                 self.train()
             else:
-                self.validate()
+                self.test()
         
         except KeyboardInterrupt:
                 #self.logger.info("You have entered CTRL+C.. Wait to finalize")
@@ -86,7 +86,7 @@ class NmtAttnAgent:
             valid_loss = self.validate()
             end_time = time.time()
 
-            epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+            epoch_mins, epoch_secs = self.epoch_time(start_time, end_time)
 
             if valid_loss < cur_best_valid_loss:
                 cur_best_valid_loss = valid_loss
@@ -95,14 +95,13 @@ class NmtAttnAgent:
             
             self.sum_wrt.add_scalar("train\loss", train_loss, epoch)
             self.sum_wrt.add_scalar("train\perplexity", math.exp(train_loss), epoch)
-            self.sum_wrt.add_scalar(f"{self.config['mode']}\loss", valid_loss, epoch)
-            self.sum_wrt.add_scalar(f"{self.config['mode']}\perplexity", math.exp(valid_loss), epoch)
+            self.sum_wrt.add_scalar(f"valid\loss", valid_loss, epoch)
+            self.sum_wrt.add_scalar(f"valid\perplexity", math.exp(valid_loss), epoch)
 
             print(f"Epoch: {epoch+1:02} | Time: {epoch_mins}m {epoch_secs}s")
             print(f"\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}")
             print(f"\t Val. Loss: {valid_loss:.3f} |  Val. PPL: {math.exp(valid_loss):7.3f}")
-        self.save_checkpoint(best_epoch, is_best=True)
-        
+        self.save_checkpoint(best_epoch, is_best=True)      
 
     def train_one_epoch(self):
         """
@@ -112,7 +111,7 @@ class NmtAttnAgent:
         self.model.train()
         epoch_loss = 0
         iterator = self.dataloader.train_iterator
-        for i, batch in enumerate(iterator):
+        for i, batch in tqdm(enumerate(iterator)):
             src = batch.src
             trg = batch.trg
             
@@ -151,9 +150,8 @@ class NmtAttnAgent:
 
         self.model.eval()    
         epoch_loss = 0    
-        assert self.config.mode != "train", "mode is train in evaluation mode"
-        iterator = self.dataloader.test_iterator if self.config.mode == "test" \
-            else self.dataloader.valid_iterator
+        iterator = self.dataloader.valid_iterator if self.config['mode'] == "train" \
+            else self.dataloader.test_iterator
         with torch.no_grad():    
             for i, batch in enumerate(iterator):
                 src = batch.src
