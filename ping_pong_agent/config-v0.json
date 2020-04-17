@@ -1,0 +1,23 @@
+{
+    "agent":
+    {
+        "nh": 200,
+        "in_sz": 6400,
+        "out_sz": 1
+    },
+    
+    "env":
+    {
+        "env_name": "Pong-v0",
+        "render": false
+    },
+
+    "train":
+    {
+        "rollout_sz": 50,
+        "gamma": 0.99,
+        "lr": 0.01,
+        "ver": "v0",
+        "save_every": 500
+    }
+}
