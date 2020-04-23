@@ -1,4 +1,4 @@
-import torch 
+import torch
 import torch.nn as nn 
 import torch.optim as optim
 import torch.nn.functional as F
@@ -9,7 +9,7 @@ import json
 import numpy as np
 from datetime import datetime
 
-from agent import PongAgent
+from policy_net import PongAgent
 import gym
 
 ###### set seed for deterministic results #########
@@ -52,19 +52,16 @@ def discount_rewards(r):
     
     return discounted_r
 
-def train(model, X, Y, dR, optimizer, criterion):
-    # set for training
-    model.train()
-    
+def train(model, X, Y, dR, optimizer, criterion):    
     # get input and target sentence
     # zero the grads
     optimizer.zero_grad()
     
     loss = criterion(model(X).squeeze(1), Y.squeeze(1))
-    # loss.grad *= dR
+    
     loss.backward()
     optimizer.step()
-    print(f"Trained for batch of episodes #{rollout_sz}")  
+    print(f"Trained for batch of #{rollout_sz} episodes ")  
 
 def init_weights(model):
     for name, param in model.named_parameters():
@@ -102,6 +99,7 @@ xs, rs, ys = [], [], [] # episodes data
 b_xs, b_drs, b_ys = [], [], [] # batch of episodes 
 w_running_reward = 0
 reward_sum = 0
+average_rewards = []
 
 env = gym.make(env_name)
 observation = env.reset()
@@ -109,10 +107,6 @@ prev_x = None
 
 # define optimizer
 optimizer = optim.Adam(model.parameters(), lr=lr)
-
-# define criterion
-# criterion = nn.BCELoss()
-
 
 ######### simulate, collect data and train agent ############
 for i in range(16):
@@ -134,15 +128,11 @@ for i in range(16):
         x = cur_x - prev_x if prev_x is not None else np.zeros(in_sz).astype(np.float32)
         prev_x = cur_x
 
-        # convert to tensor for model 
-        x_in = torch.from_numpy(x)
-        # forward the network ## model need to be in cpu mode 
-        with torch.no_grad():
-            action_p = model(x_in)
+        # forward the network
+        action_p = model(torch.from_numpy(x).unsqueeze(0))
 
-            # roll die and sample and action from returned probability
-            action = 2 if np.random.uniform() < action_p.data.item() else 3
-
+        # roll die and sample and action from returned probability
+        action = 2 if np.random.uniform() < action_p.item() else 3
         y = 1 if action == 2 else 0 # fake label
 
         # record the observation and its fake label, i.e, training data
@@ -152,9 +142,10 @@ for i in range(16):
         # sample and execute a action to get new state
         observation, reward, done, info = env.step(action)
         reward_sum += reward
-        rs.append(reward) 
+        rs.append(reward)
+        average_rewards.append(np.mean(rs)) 
 
-        # if reward != 0:
+        # if reward != 0 and ep_n % 50 == 0:
         #     win = "win" if reward == 1 else "loss"
         #     print(f"Game finished with {reward}, ep_no: {ep_n}, status: {win}")
 
@@ -164,13 +155,16 @@ for i in range(16):
             ep_xs = np.vstack(xs)
             ep_rs = np.vstack(rs)
             ep_ys = np.vstack(ys)
-            xs, rs, ys = [], [], [] # re-set memory
+            ep_avg_rewards = np.vstack(average_rewards)
+            xs, rs, ys, average_rewards = [], [], [], [] # re-set memory
 
             # compute discounted reward for each time-step in the episode
             ep_drs = discount_rewards(ep_rs)
             # scale the data for variance reduction 
             ep_drs -= np.mean(ep_drs)
             ep_drs /= np.std(ep_drs)
+
+            ep_drs -= ep_avg_rewards
 
             # add to batch collection 
             b_xs.append(ep_xs)
@@ -184,11 +178,7 @@ for i in range(16):
                 Y = Y.float()
                 dR = dR.squeeze(1).float()
                 b_xs, b_ys, b_drs = [], [], [] # re-set memory 
-
-                # define criterion
                 criterion = nn.BCELoss(weight=dR)
-                # optimizer
-                # optimizer = optim.Adam
 
                 # train model
                 train(model, X, Y, dR, optimizer, criterion)
@@ -206,7 +196,7 @@ for i in range(16):
     ### save model to disk
     cdir = os.getcwd()
     ts = datetime.now().strftime("%m.%d.%Y.%H_%M_%S")
-    save_checkpoint(model, ts, os.path.join(cdir, "saved_weights"), ver)
+    save_checkpoint(model, ts, os.path.join(cdir, "saved_weights"), i)
 
 # close simulation env 
 env.close()

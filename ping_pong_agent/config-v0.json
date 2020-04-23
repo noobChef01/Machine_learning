@@ -12,12 +12,13 @@
         "render": false
     },
 
+
     "train":
     {
-        "rollout_sz": 50,
-        "gamma": 0.99,
-        "lr": 0.01,
-        "ver": "v0",
-        "save_every": 500
+    	"rollout_sz": 64,
+	    "gamma": 0.99,
+	    "lr": 0.01,
+	    "ver": "v0",
+	    "save_every": 512
     }
 }

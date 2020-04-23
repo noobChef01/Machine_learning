@@ -7,15 +7,13 @@ class PongAgent(nn.Module):
 
     def __init__(self, in_size, nh, out_sz):
         super().__init__()
-        self.fc1 = nn.Linear(in_size, nh) # weights check the environment 
+        # after wards change the bias
+        self.fc1 = nn.Linear(in_size, nh) # weights check the positon of paddles and ball 
         self.fc_out = nn.Linear(nh, out_sz) # decide to go up or down
 
     def forward(self, x):
-        # x [in_sz] image after (pre-processing)
-        if len(x.size()) == 1:
-            x = x.squeeze(0)
-        # add batch sz dim
-        # x [1 x in_sz]
+        # x [batch_sz x in_sz] images after (pre-processing)
         
         h = F.relu(self.fc1(x))
-        return torch.sigmoid(self.fc_out(h))
+        lop_p = self.fc_out(h)
+        return torch.sigmoid(lop_p)
