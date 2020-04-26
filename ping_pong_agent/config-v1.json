@@ -6,13 +6,12 @@
     },
         
     "env_name": "Pong-v0",
-    "rollout_sz": 64,
+    "rollout_sz": 4,
     "gamma": 0.99,
     "lr": 0.01,
     "ver": "v1",
-    "save_every": 512,
-    "render": false,
-    "n_epochs": 20,
+    "save_every": 100,
+    "render": true,
+    "n_epochs": 100,
     "ent_beta": 0.1
-    
 }
